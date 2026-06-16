@@ -97,7 +97,6 @@ def masked_huber_loss(preds, labels, null_val=0.0, delta=1.0):
     loss = torch.where(torch.isnan(loss), torch.zeros_like(loss), loss)
     return torch.sum(loss) / torch.clamp(torch.sum(mask), min=1.0)
 
-
 def MAE_torch(pred, true, mask_value=None):
     if mask_value != None:
         mask = torch.gt(true, mask_value)
@@ -109,9 +108,6 @@ def MAE_torch(pred, true, mask_value=None):
 
 
 def MAPE_torch(pred, true, mask_value=1.0):
-    """
-    计算 MAPE，严格过滤掉小于 mask_value (比如 1.0) 的真实值，防止极小值作分母导致结果爆炸。
-    """
     if mask_value is not None:
         mask = torch.ge(true, mask_value)
         if mask.sum() == 0:

@@ -37,6 +37,7 @@ class TemporalEmbedding(nn.Module):
         tem_emb = (self.time_day[time_of_day_idx] + self.time_week[day_of_week_idx]).permute(0, 3, 2, 1)
         return tem_emb
 
+
 class SwiGLU(nn.Module):
     def __init__(self, in_features, out_features, dropout=0.3):
         super().__init__()
@@ -49,6 +50,7 @@ class SwiGLU(nn.Module):
         gate = F.silu(self.w1(x)) * self.w2(x)
         return self.w3(self.drop(gate))
 
+
 class EulerFrequencyModulation(nn.Module):
     def __init__(self, channels, seq_len):
         super().__init__()
@@ -57,6 +59,7 @@ class EulerFrequencyModulation(nn.Module):
         self.delta_theta = nn.Parameter(torch.empty(1, channels, 1, self.num_freqs))
         nn.init.uniform_(self.delta_theta, -math.pi, math.pi)
         self.channel_mix = nn.Conv2d(channels, channels, kernel_size=(1, 1))
+
     def forward(self, x):
         B, C, N, T = x.shape
         x_freq = torch.fft.rfft(x.float(), dim=-1, norm='ortho')
@@ -88,8 +91,10 @@ class SpectrumAwareGraphConv(nn.Module):
         with torch.amp.autocast('cuda', enabled=False):
             x_freq = torch.fft.rfft(x.float(), norm='ortho', dim=-1)
             mag_feat = torch.abs(x_freq).mean(dim=1)
+
             mag_feat = self.spec_projection(mag_feat)
             mag_feat = F.normalize(mag_feat, p=2, dim=-1)
+
             dist = torch.cdist(mag_feat, mag_feat, p=2.0)
 
             sigma = torch.std(dist, dim=(1, 2), keepdim=True) + 1e-5
@@ -105,6 +110,7 @@ class SpectrumAwareGraphConv(nn.Module):
         out = torch.einsum('bnm, bcmt -> bcnt', norm_adj.to(x.dtype), x)
         return self.ln(self.gcn_conv(out) + residual), norm_adj
 
+
 class TemporalConvNet_SiLU(nn.Module):
     def __init__(self, features, kernel_size, dropout=0.2, levels=3):
         super().__init__()
@@ -115,6 +121,7 @@ class TemporalConvNet_SiLU(nn.Module):
             self.layers.append(nn.Sequential(
                 nn.Conv2d(features, features, (1, kernel_size), dilation=(1, dilation_size), padding=(0, padding_size)),
                 Chomp_T(padding_size),
+
                 nn.SiLU(),
                 nn.Dropout(dropout)
             ))
@@ -124,7 +131,8 @@ class TemporalConvNet_SiLU(nn.Module):
             x = x + layer(x)
         return x
 
-class EFSTG(nn.Module):
+
+class TSGAT_Optimized(nn.Module):
     def __init__(self, device, input_dim, num_nodes, channels, real_adj=None, granularity=288, dropout=0.2, ablation_mode=None, tcn_levels=3, top_k=15, **kwargs):
         super().__init__()
         self.ablation_mode = ablation_mode
@@ -136,7 +144,6 @@ class EFSTG(nn.Module):
             self.register_buffer('real_adj', real_adj)
         else:
             self.real_adj = None
-
         self.graph_alpha = nn.Parameter(torch.tensor(-4.0))
 
         self.skip_conv = nn.Conv2d(in_channels=1, out_channels=self.output_len, kernel_size=(1, self.input_len))
@@ -171,19 +178,22 @@ class EFSTG(nn.Module):
 
     def forward(self, x):
         info_dict = {}
+
         x_target = x[:, 0:1, :, :]
 
+        # 1. 编码输入
         x_in = torch.cat([self.start_conv(x) + self.node_emb, self.Temb(x.permute(0, 3, 2, 1))], dim=1)
 
+        # 2. 时域卷积 (TCN)
         if self.ablation_mode == 'w/o_TCN':
             h_local = x_in
         else:
             h_local = self.temporal_conv(x_in)
 
+        # 3. 静态图卷积 (GC)
         raw_adj = torch.mm(self.node_emb_1, self.node_emb_2) / math.sqrt(32.0)
         adp_adj = F.softmax(raw_adj, dim=-1)
-        info_dict['static_adj'] = adp_adj
-
+        info_dict['static_adj'] = adp_adj  # 收集自适应静态图
         use_real_adj = self.real_adj is not None and self.ablation_mode != 'w/o_PhyGraph'
 
         if use_real_adj:
@@ -200,6 +210,7 @@ class EFSTG(nn.Module):
 
         h_local = self.ln_local(h_local + graph_out + x_in)
 
+        # 4. 频域分支 (Freq)
         if self.ablation_mode == 'w/o_Euler':
             freq_input = h_local
         else:
@@ -212,18 +223,20 @@ class EFSTG(nn.Module):
             h_final = h_local
         else:
             h_freq = self.ln_global(h_freq + h_local)
+            # 5. 门控融合
             gate = torch.sigmoid(self.fusion_gate(torch.cat([h_local, h_freq], dim=1)))
             info_dict['fusion_gate'] = gate
             h_final = gate * h_local + (1 - gate) * h_freq
 
+        # 6. 深层解码
         out_deep = self.dec_time(h_final)
         out_deep = self.swiglu(out_deep)
         out_deep = self.end_conv(out_deep)
 
+        # 7. 线性直连 (Skip)
         x_target = x[:, 0:1, :, :]
         out_skip = self.skip_conv(x_target)
         identity = x_target[:, :, :, -1:]
-
         if self.ablation_mode == 'w/o_Skip':
             final_out = out_deep
         else:

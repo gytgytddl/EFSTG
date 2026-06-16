@@ -11,7 +11,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import random
 import util
-from model import EFSTG
+from xrmodelx import TSGAT_Optimized
 GLOBAL_SEED = 3407
 def set_seed(seed=GLOBAL_SEED):
     random.seed(seed)
@@ -62,7 +62,7 @@ TASK_LIST = [
 
 if __name__ == "__main__":
 
-    RESULT_DIR = f"results/{DATA_NAME}"
+    RESULT_DIR = f"xrresultsx/{DATA_NAME}"
     os.makedirs(RESULT_DIR, exist_ok=True)
     CSV_FILE = os.path.join(RESULT_DIR, f"Experiment_Results_{DATA_NAME}.csv")
 
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         df_exist = pd.read_csv(CSV_FILE)
         if 'Task_Name' in df_exist.columns:
             completed_tasks = df_exist['Task_Name'].tolist()
-            print(f"发现历史进度，已完成 {len(completed_tasks)} 个任务。")
+            print(f"📦 发现历史进度，已完成 {len(completed_tasks)} 个任务。")
 
     print("=" * 50)
     print(f"🔥 开始加载 {DATA_NAME} 数据...")
@@ -111,19 +111,21 @@ if __name__ == "__main__":
         safe_name = task_name.replace('/', '_')
 
         if task_name in completed_tasks:
-            print(f"任务 【{task_name}】 已存在于 CSV 中，自动跳过！")
+            print(f"⏭️ 任务 【{task_name}】 已存在于 CSV 中，自动跳过！")
             continue
 
-        print(f"开始训练任务: 【{task_name}】")
+        print("\n" + "🚀" * 15)
+        print(f"🚀 开始训练任务: 【{task_name}】")
         print(
-            f"参数配置: Mode={task['ablation_mode']}, Ch={task['channels']}, Lvl={task['tcn_levels']}, K={task['top_k']}")
+            f"🔧 参数配置: Mode={task['ablation_mode']}, Ch={task['channels']}, Lvl={task['tcn_levels']}, K={task['top_k']}")
+        print("🚀" * 15)
 
         set_seed(GLOBAL_SEED)
         if hasattr(data_dict['train_loader'].loader, 'generator') and data_dict[
             'train_loader'].loader.generator is not None:
             data_dict['train_loader'].loader.generator.manual_seed(GLOBAL_SEED)
 
-        model = EFSTG(
+        model = TSGAT_Optimized(
             device=DEVICE,
             input_dim=3,
             num_nodes=data_dict['num_nodes'],
@@ -208,12 +210,12 @@ if __name__ == "__main__":
                 patience_counter += 1
 
             if patience_counter >= PATIENCE:
-                print(f"早停! 最佳 Epoch 为 {best_epoch}, 最佳 Val MAE: {best_val_mae:.4f}")
+                print(f"🛑 触发早停! 最佳 Epoch 为 {best_epoch}, 最佳 Val MAE: {best_val_mae:.4f}")
                 break
 
         gpu_max_mem = torch.cuda.max_memory_allocated() / (1024 ** 3)
 
-        print(f"加载 {task_name} 的最佳权重进行最终打分...")
+        print(f"📊 加载 {task_name} 的最佳权重进行最终打分...")
         model.load_state_dict(best_model_state)
         model.eval()
 
@@ -297,6 +299,7 @@ if __name__ == "__main__":
         df_current = pd.DataFrame([record])
         write_header = not os.path.exists(CSV_FILE)
         df_current.to_csv(CSV_FILE, mode='a', header=write_header, index=False)
+        print(f"💾 当前结果已实时追加到: {CSV_FILE}")
 
     print("\n" + "=" * 60)
     print("=" * 60)
