@@ -35,27 +35,31 @@ New York City datasets capture complex urban mobility patterns.
 ### 1. Environment Setup
 
 Install the required Python packages using:
-bash
+```bash
 pip install -r requirements.txt
+```
 ### 2. Prepare the Graph Matrix
 
 Before training, generate the distance matrix for the target dataset (e.g., PeMS08). This script calculates the shortest paths between nodes:
-bash
+```bash
 python graphprocess.py
+```
 Output: `pems08_distance_matrix.npy` will be saved in your processed data folder.
 
 ### 3. Generate Sequence Data
 
 Process the raw .npz data to generate the input/output sequences with temporal features (Time of Day, Day of Week):
-bash
+```bash
 python dataprocess.py --traffic_df_filename data/PEMS08/PEMS08.npz --output_dir data/processed/PEMS08/
+```
 Output: `train.npz`, `val.npz`, `test.npz` containing tensors of shape (B, T, N, 3).
 
 ### 4. Training
 
 Run the training script (adjust parameters inside the script or via command line as needed):
-bash
+```bash
 python train.py
+```
 ## 🛠️ Key Features
 
 - **Robust DataLoader:** Highly optimized PyTorch DataLoader specifically designed for time-series forecasting, utilizing pinned memory and custom thread management to prevent deadlocks on Windows/Linux environments.
