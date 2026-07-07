@@ -11,7 +11,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import random
 import util
-from xrmodelx import TSGAT_Optimized
+from model import EFSTG
 GLOBAL_SEED = 3407
 def set_seed(seed=GLOBAL_SEED):
     random.seed(seed)
@@ -125,7 +125,7 @@ if __name__ == "__main__":
             'train_loader'].loader.generator is not None:
             data_dict['train_loader'].loader.generator.manual_seed(GLOBAL_SEED)
 
-        model = TSGAT_Optimized(
+        model = EFSTG(
             device=DEVICE,
             input_dim=3,
             num_nodes=data_dict['num_nodes'],
