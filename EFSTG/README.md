@@ -8,6 +8,10 @@ This repository contains the official implementation of the EFSTG model, a robus
 - `dataprocess.py`: Script to process raw traffic data. It extracts specific traffic features (e.g., occupancy), injects temporal features (time-of-day, day-of-week), and generates sequence-to-sequence `(train/val/test)` datasets.
 - `graphprocess.py`: Script to construct the spatial graph. It parses road network structures (from CSV) and computes all-pairs shortest paths using Dijkstra's algorithm to generate a spatial distance matrix.
 - `train.py` & `model.py` *(already in repo)*: The training logic and the core model architectures.
+- `nycbikemodel.py`: Core model architecture tailored for NYC bike/taxi datasets (adapted from the base model with NYC-specific configurations).
+- `nycbiketrain.py`: Hyperparameter tuning and training script for NYC datasets (separate from `train.py`, which focuses on ablation studies and baseline comparisons).
+- `NYCgenerate.py`: Preprocessing script to convert downloaded `.h5` files (from NYC Open Data) into the `.npz` format required by the data loader.
+- `utiln.py`: Utility functions and data loaders specifically designed for NYC datasets (complementing `util.py` which handles PeMS data).
 
 ## 📊 Datasets
 
@@ -60,6 +64,7 @@ Run the training script (adjust parameters inside the script or via command line
 ```bash
 python train.py
 ```
+> For NYC bike/taxi datasets, use `nycbiketrain.py` instead.
 ## 🛠️ Key Features
 
 - **Robust DataLoader:** Highly optimized PyTorch DataLoader specifically designed for time-series forecasting, utilizing pinned memory and custom thread management to prevent deadlocks on Windows/Linux environments.
