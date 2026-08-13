@@ -24,7 +24,7 @@ def set_seed(seed=GLOBAL_SEED):
 
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 DATA_NAME = 'PEMS03'
-MAX_EPOCHS = 20
+MAX_EPOCHS = 15
 PATIENCE = 5
 LR = 0.0018237448310985205
 WEIGHT_DECAY = 2.3467701398290323e-05

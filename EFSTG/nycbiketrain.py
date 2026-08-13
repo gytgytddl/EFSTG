@@ -29,7 +29,7 @@ set_seed(GLOBAL_SEED)
 
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 DATA_NAME = 'NYC-BIKE'
-EPOCHS = 20
+EPOCHS = 15
 PATIENCE = 5
 DB_NAME = f"sqlite:///rNBcan_{DATA_NAME.replace('-', '_')}_v3.db"
 STUDY_NAME = "rNBcan_Pure_Search_v3"

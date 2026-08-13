@@ -1,5 +1,12 @@
-numpy>=1.19.0
-pandas>=1.1.0
-torch>=1.9.0
-networkx>=2.5
-scipy>=1.5.0
+numpy>=1.26.0
+pandas>=2.0.0
+torch>=1.13.0
+networkx>=3.0
+scipy>=1.13.0
+optuna>=4.0.0
+scikit-learn>=1.6.0
+matplotlib>=3.9.0
+tqdm>=4.66.0
+pyyaml>=6.0
+torch-geometric>=2.6.0
+torchinfo>=1.8.0

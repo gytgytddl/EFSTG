@@ -12,6 +12,8 @@ This repository contains the official implementation of the EFSTG model, a robus
 - `nycbiketrain.py`: Hyperparameter tuning and training script for NYC datasets (separate from `train.py`, which focuses on ablation studies and baseline comparisons).
 - `NYCgenerate.py`: Preprocessing script to convert downloaded `.h5` files (from NYC Open Data) into the `.npz` format required by the data loader.
 - `utiln.py`: Utility functions and data loaders specifically designed for NYC datasets (complementing `util.py` which handles PeMS data).
+- `gauss.py`: Script for Gaussian noise robustness experiments. It evaluates model performance under various noise levels to assess resistance to perturbations.
+- `seed.py`: Script for multi-seed reproducibility experiments. It runs training and evaluation with different random seeds to verify statistical stability of the reported results.
 
 ## 📊 Datasets
 
@@ -41,6 +43,10 @@ New York City datasets capture complex urban mobility patterns.
 Install the required Python packages using:
 ```bash
 pip install -r requirements.txt
+```
+If you prefer using conda, you can create the environment directly from the provided environment.yml file:
+```bash
+conda env create -f environment.yml
 ```
 ### 2. Prepare the Graph Matrix
 
