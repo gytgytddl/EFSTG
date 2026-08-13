@@ -80,9 +80,9 @@ TASKS = [
 ]
 GLOBAL_SEED = 3407
 DEVICE = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-MAX_EPOCHS = 20
+MAX_EPOCHS = 15
 PATIENCE = 5
-ONECYCLE_EPOCHS = 20
+ONECYCLE_EPOCHS = 15
 
 if __name__ == "__main__":
     efficiency_results = []

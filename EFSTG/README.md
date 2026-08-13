@@ -3,11 +3,12 @@
 This repository contains the official implementation of the EFSTG model, a robust spatial-temporal graph neural network designed for traffic prediction tasks.
 
 ## 📂 Project Structure
+The experimental code can be run directly, and the parameters have been configured.
 
 - `util.py`: Contains core utility functions, including data loaders (PyTorch `DataLoader`), normalization scalers (`StandardScaler`), standard evaluation metrics (MAE, MAPE, RMSE, WMAPE), and robust loss functions (Huber Loss, Masked MAE).
 - `dataprocess.py`: Script to process raw traffic data. It extracts specific traffic features (e.g., occupancy), injects temporal features (time-of-day, day-of-week), and generates sequence-to-sequence `(train/val/test)` datasets.
 - `graphprocess.py`: Script to construct the spatial graph. It parses road network structures (from CSV) and computes all-pairs shortest paths using Dijkstra's algorithm to generate a spatial distance matrix.
-- `train.py` & `model.py` *(already in repo)*: The training logic and the core model architectures.
+- `train.py` & `model.py` *(already in repo)*: Ablation experiment training logic and core model architecture.
 - `nycbikemodel.py`: Core model architecture tailored for NYC bike/taxi datasets (adapted from the base model with NYC-specific configurations).
 - `nycbiketrain.py`: Hyperparameter tuning and training script for NYC datasets (separate from `train.py`, which focuses on ablation studies and baseline comparisons).
 - `NYCgenerate.py`: Preprocessing script to convert downloaded `.h5` files (from NYC Open Data) into the `.npz` format required by the data loader.
