@@ -60,6 +60,22 @@ TASKS = [
         'DROPOUT': 0.2,
         'CHANNELS': 64,
         'NOISE_LEVELS': [0.0, 0.2, 0.4, 0.6]
+    },
+{
+        'DATA_NAME': 'PEMS03',
+        'LR': 0.0018237448310985205,
+        'WEIGHT_DECAY': 2.3467701398290323e-05,
+        'DROPOUT': 0.2,
+        'CHANNELS': 80,
+        'NOISE_LEVELS': [0.0, 0.2, 0.4, 0.6]
+    },
+    {
+        'DATA_NAME': 'PEMS04',
+        'LR': 0.001996339887491085,
+        'WEIGHT_DECAY': 4.829631649796517e-05,
+        'DROPOUT': 0.3,
+        'CHANNELS': 96,
+        'NOISE_LEVELS': [0.0, 0.2, 0.4, 0.6]
     }
 ]
 GLOBAL_SEED = 3407
