@@ -1,9 +1,0 @@
-# Data files
-*.npz
-*.npy
-*.csv
-data/
-__pycache__/
-.idea/
-*.pt
-*.pth
